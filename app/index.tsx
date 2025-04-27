@@ -10,6 +10,7 @@ const Index = () => {
     const [email, setemail] = useState("");
     const [password, setpassword] = useState("");
     const [loading, setloading] = useState(false);
+     const [showpassword, setshowpassword] = useState(false);
 
     const router = useRouter()
     const getData = async () => {
@@ -20,16 +21,16 @@ const Index = () => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ query: {email:email, password:password}, table: "users" })
+                body: JSON.stringify({ query: { email: email, password: password }, table: "users" })
             });
 
             const data = await response.json();
             console.log(data, "Fetched hospitals");
             setloading(false)
-            if(data.result?.length>0){
+            if (data.result?.length > 0) {
                 await AsyncStorage.setItem('login', JSON.stringify(data.result[0]));
                 router.push("/home")
-            }else{
+            } else {
                 ToastAndroid.show("Invalid Credentials", ToastAndroid.SHORT);
             }
 
@@ -48,13 +49,28 @@ const Index = () => {
                         <Text className='text-2xl font-normal text-white text-center'>Welcome to</Text> Hospital Booking</Text>
 
                     <View className='mt-[10px]'>
-                        <TextInput onChangeText={(v)=>setemail(v)} className='mt-10 py-4 px-4 rounded-full bg-[#ffffff]' placeholder='Email' />
-                        <TextInput onChangeText={(v)=>setpassword(v)} 
-                        className='mt-4 py-4 px-4 rounded-full bg-[#ffffff]' placeholder='Password' />
-                        <TouchableOpacity onPress={()=>getData()} 
-                        className='flex flex-row justify-center items-center gap-2 mt-10 py-3 px-4 rounded-full bg-[#ffffff]'>
+                        <TextInput onChangeText={(v) => setemail(v)} className='mt-10 py-4 px-4 rounded-full bg-[#ffffff]' placeholder='Email' />
+                        <View className='relative'>
+                            <TextInput
+                                className='mt-4 py-4 px-4 rounded-full bg-[#ffffff]'
+                                placeholder='Password'
+                                secureTextEntry={!showpassword}
+                                value={password}
+                                onChangeText={setpassword}
+                            />
+                            <TouchableOpacity className='absolute right-4 top-7' onPress={() => setshowpassword(!showpassword)}>
+                                {showpassword ? (
+                                    <FontAwesome name="eye-slash" size={24} color="gray" />
+                                ) : (
+                                    <FontAwesome name="eye" size={24} color="gray" />
+                                )}
+                            </TouchableOpacity>
+
+                        </View>
+                        <TouchableOpacity onPress={() => getData()}
+                            className='flex flex-row justify-center items-center gap-2 mt-10 py-3 px-4 rounded-full bg-[#ffffff]'>
                             {/* <FontAwesome name='google' size={20}/> */}
-                            <Text className='text-lg text-black text-center font-bold'>{loading?'Loading...':'Login Now'}</Text>
+                            <Text className='text-lg text-black text-center font-bold'>{loading ? 'Loading...' : 'Login Now'}</Text>
                         </TouchableOpacity>
 
                         <View className='mt-5 flex-row justify-center'>

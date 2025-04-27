@@ -14,6 +14,7 @@ const Index = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showpassword, setshowpassword] = useState(false);
 
     const handleSignup = async () => {
         if (!fullName || !email || !phone || !password || !confirmPassword) {
@@ -37,7 +38,7 @@ const Index = () => {
                     data: {
                         fullName,
                         email,
-                        phone,
+                        mobile:phone,
                         password
                     },
                     table: "users"
@@ -46,6 +47,7 @@ const Index = () => {
 
             const data = await response.json();
             setLoading(false);
+console.log(data);
 
             if (data?.status === 200) {
                 ToastAndroid.show("Signup Successful", ToastAndroid.SHORT);
@@ -91,17 +93,27 @@ const Index = () => {
                             value={phone}
                             onChangeText={setPhone}
                         />
+                        <View className='relative'>
                         <TextInput
                             className='mt-4 py-4 px-4 rounded-full bg-[#ffffff]'
                             placeholder='Password'
-                            secureTextEntry
+                            secureTextEntry={!showpassword}
                             value={password}
                             onChangeText={setPassword}
                         />
+                        <TouchableOpacity className='absolute right-4 top-7' onPress={() => setshowpassword(!showpassword)}>
+                            {showpassword ? (
+                                <FontAwesome name="eye-slash" size={24} color="gray" />
+                            ) : (
+                                <FontAwesome name="eye" size={24} color="gray" />
+                            )}
+                        </TouchableOpacity>
+                      
+                        </View>
                         <TextInput
                             className='mt-4 py-4 px-4 rounded-full bg-[#ffffff]'
                             placeholder='Confirm Password'
-                            secureTextEntry
+                            secureTextEntry={!showpassword}
                             value={confirmPassword}
                             onChangeText={setConfirmPassword}
                         />
