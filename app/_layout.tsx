@@ -9,6 +9,7 @@ import "../global.css"
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Text } from 'react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -48,8 +49,9 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index"options={{headerShown:false}} />
-        <Stack.Screen name="mybookings"options={{headerShown:false}} />
+        <Stack.Screen name="mybookings" />
         <Stack.Screen name="services"options={{headerShown:false}} />
+        <Stack.Screen name="configuration" options={{ title: 'Configuration' }}  />
         <Stack.Screen name="home"options={{headerShown:false}} />
         <Stack.Screen name="signup"options={{headerShown:false}} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

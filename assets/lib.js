@@ -1,1 +1,1 @@
-export const api_url = "https://hospital-bokings.vercel.app"
+export const api_url = "https://arduino.iotaquaculture.com"
