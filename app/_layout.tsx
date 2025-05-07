@@ -52,6 +52,8 @@ export default function RootLayout() {
         <Stack.Screen name="mybookings" />
         <Stack.Screen name="services"options={{headerShown:false}} />
         <Stack.Screen name="configuration" options={{ title: 'Configuration' }}  />
+        <Stack.Screen name="configurationbtn" options={{ title: 'Button Configuration' }}  />
+        <Stack.Screen name="buttons" options={{ title: 'Create Button' }}  />
         <Stack.Screen name="home"options={{headerShown:false}} />
         <Stack.Screen name="signup"options={{headerShown:false}} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

@@ -64,12 +64,12 @@ console.log(data);
 
     return (
         <View className='flex-1 justify-center items-center'>
-            <Image className='w-full h-full absolute top-0 left-0' source={require('@/assets/images/bg.jpg')} />
+            <Image className='w-full h-full absolute top-0 left-0' source={{ uri: "https://robotechvalley.com/wp-content/uploads/2024/11/cropped-logo-main.png" }} />
             <View className='p-4 w-full'>
                 <View className="w-full p-4 rounded-xl bg-[#01409977]">
-                    <Image className='h-24 w-24 mx-auto' resizeMode='cover' source={require('@/assets/images/hospital.png')} />
+                    <Image className='h-24 w-52 mx-auto' resizeMode='contain' source={require('@/assets/images/rtv.png')} />
                     <Text className='text-2xl mt-2 font-bold text-white text-center'>
-                        <Text className='text-2xl font-normal text-white text-center'>Welcome to </Text>Hospital Booking
+                        <Text className='text-2xl font-normal text-white text-center'>Welcome to </Text>Aquaculture IoT
                     </Text>
 
                     <View className='mt-[10px]'>

@@ -4,36 +4,55 @@ import { ScrollView, Text, View, StyleSheet, TouchableOpacity, ToastAndroid } fr
 import * as Clipboard from 'expo-clipboard';
 
 const code = `
-#include <WiFi.h>
-#include <HTTPClient.h>
+#include <WebSocketsClient.h>
+#include <ESP8266WiFi.h>
+#include <ArduinoJson.h>
 
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
+WebSocketsClient webSocket;
 
-const String serverName = "https://arduino.iotaquaculture.com/send-data?secret=SECRET_CODE";
+void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
+  if (type == WStype_TEXT) {
+    // Print raw payload
+    Serial.println((char*)payload);
+
+    // Allocate memory for JSON document
+    StaticJsonDocument<256> doc;
+
+    // Parse the JSON from payload
+    DeserializationError error = deserializeJson(doc, payload);
+    if (error) {
+      Serial.print("deserializeJson() failed: ");
+      Serial.println(error.c_str());
+      return;
+    }
+
+    // Example: assume JSON is like {"BUTTON_NAME": 123}
+    int value = doc["BUTTON_NAME"];  // Extract the "button" field
+    Serial.print("Extracted value: ");
+    Serial.println(value);
+  }
+}
 
 void setup() {
-Serial.begin(115200);
-WiFi.begin(ssid, password);
-while (WiFi.status() != WL_CONNECTED) {
+  Serial.begin(115200);
+  WiFi.begin("SSID", "PASSWORD");
+
+  while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-}
+    Serial.print(".");
+  }
+  Serial.println("Connected to WiFi");
+
+  // Connect to secure WebSocket server
+  webSocket.beginSSL("arduino.iotaquaculture.com", 443, "/");
+
+  webSocket.onEvent(webSocketEvent);
 }
 
 void loop() {
-if (WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    http.begin(serverName);
-    http.addHeader("Content-Type", "application/json");
-
-    String payload = "{\"temperature\": 25.3, \"humidity\": 40}";
-    int responseCode = http.POST(payload);
-    http.end();
+  webSocket.loop();
 }
-delay(10000); 
-//Send Data when new data availabe
-//don't post data if data not changed
-}`
+`
 
 export default function ConnectArduinoScreen() {
     const copyToClipboard = async () => {
@@ -46,18 +65,18 @@ export default function ConnectArduinoScreen() {
 
             <Text style={styles.subheader}>Step 1: Hardware Requirements</Text>
             <Text style={styles.text}>
-                • Arduino board with Wi-Fi (e.g., ESP8266, ESP32){'\n'}
+                • Device board with Wi-Fi (e.g., ESP8266, ESP32){'\n'}
                 • Arduino IDE installed on your computer{'\n'}
                 • Active Wi-Fi connection
             </Text>
 
             <Text style={styles.subheader}>Step 2: Upload This Code</Text>
-            <Text className='text-gray-500'>
+            {/* <Text className='text-gray-500'>
                 API LINK:
             </Text>
             <Text className='text-red-500 pb-5'>
                 https://arduino.iotaquaculture.com/send-data?secret=SECRET_CODE
-            </Text>
+            </Text> */}
             <View className='relative' style={styles.code}>
                 <TouchableOpacity onPress={copyToClipboard} className=' bg-gray-200 p-2 rounded'>
                     <Text className='text-blue-500 text-center'><FontAwesome name='copy' /> Copy Code</Text>
@@ -69,19 +88,7 @@ export default function ConnectArduinoScreen() {
             </View>
 
 
-            <Text style={styles.subheader}>Step 3: View Live Data</Text>
-            <Text style={styles.text}>
-                After uploading the code, your Arduino will begin sending sensor data to our server.
-                {'\n\n'}Go to the “📊 Home Screen to view your readings in real time!
-            </Text>
-
-            <Text style={styles.subheader}>Troubleshooting</Text>
-            <Text style={styles.text}>
-                • Ensure your Wi-Fi credentials are correct.Change YOUR_WIFI_PASSWORD YOUR_WIFI_SSID with actual values{'\n'}
-                • Use a secure `https://` endpoint in the Arduino code.{'\n'}
-                • Your board must be able to access the internet.
-                • You must replace SECRET_CODE with your secret code
-            </Text>
+            
         </ScrollView>
     );
 }

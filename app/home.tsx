@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, TextInput, ToastAndroid, TouchableOpacity } from 'react-native';
 import { Text, View, StyleSheet } from 'react-native';
-import { api_url } from "@/assets/lib"
+import { api_url, socket_url } from "@/assets/lib"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import { io } from "socket.io-client";
@@ -35,6 +35,8 @@ const Home = () => {
     }, [userdata?._id, isfocued]);
 
     const getData = async () => {
+        console.log(userdata);
+        if(!userdata?._id) return 0;
         try {
             // console.log("Fetching Data...");
             const response = await fetch(api_url + '/get-item', {
@@ -63,7 +65,7 @@ const Home = () => {
 
     useEffect(() => {
         
-        const socket = io('https://arduino.iotaquaculture.com', {
+        const socket = io("https://arduino.iotaquaculture.com", {
             transports: ['websocket'], // Force WebSocket
           });
       
@@ -71,7 +73,7 @@ const Home = () => {
             console.log('Connected to socket server');
           });
       
-          socket.on('data', (data) => {
+          socket.on(userdata?.secret_code, (data:any) => {
             const newData = JSON.parse(data);
             setuserdata((prev:any)=>({...prev,data:{...newData}}))
             
@@ -86,7 +88,7 @@ const Home = () => {
 
     useEffect(() => {
         getData()
-    }, []);
+    }, [userdata?._id]);
 
     const copyToClipboard = async () => {
         if(userdata?.secret_code){
@@ -114,15 +116,15 @@ const Home = () => {
                         onPress={copyToClipboard}>
                             <Text className='text-sm text-gray-200 text-center '>
                             {userdata?.secret_code?
-                            "1743121234*****"+" ":"No Code"} 
+                            userdata?.secret_code:"No Code"} 
                             <FontAwesome name={'copy'} /></Text>
                         </TouchableOpacity>
                     </View>
                     <TouchableOpacity className='flex justify-center items-center'>
-                        <Image className='h-20 mb-3 w-20' resizeMode='cover' 
-                        source={{ uri: "https://robotechvalley.com/wp-content/uploads/2024/11/cropped-logo-main.png" }} />
-                        <TouchableOpacity onPress={() => {
-                            AsyncStorage.removeItem('login')
+                        <Image className='h-20 mb-3 w-44' resizeMode='contain' 
+                        source={require('@/assets/images/rtv.png')} />
+                        <TouchableOpacity onPress={async () => {
+                            await AsyncStorage.removeItem('login')
                             router.push("/")
                         }}>
                             <Text className='text-sm text-gray-200'>Logout</Text>
@@ -144,7 +146,7 @@ const Home = () => {
                     </TouchableOpacity>}
                 </View>
 
-                {/* Hospital List */}
+                {/*  List */}
                 <ScrollView className='p-4'>
                     <View className='flex-row justify-center flex-wrap'>
                         {userdata?.data && Object.keys(userdata?.data).length > 0 ? (
@@ -152,9 +154,7 @@ const Home = () => {
                             Object.keys(userdata?.data).map((item, index) => (
                                 <TouchableOpacity
                                     key={index}
-                                    onPress={() =>
-                                        router.push({ pathname: '/services', params: { hospital: item } })}
-                                    // 🔥 Redirect to services page if you want
+                                   
                                     className='bg-blue-500 p-5 m-1 
                                 rounded-lg flex-row justify-between items-center w-[30%] overflow-hidden'
                                 >
@@ -180,6 +180,10 @@ const Home = () => {
                     </View>
                     <View className='h-20'></View>
                 </ScrollView>
+
+                <TouchableOpacity onPress={()=>router.push("/buttons")} className='bg-blue-400 p-5 m-3 rounded-lg'>
+                    <Text className='text-center text-white font-semibold '>Create Button</Text>
+                </TouchableOpacity>
             </View>
             <View>
                 <TouchableOpacity onPress={() => router.push("/configuration")} className='shadow-lg '>
